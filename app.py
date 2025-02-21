@@ -1,15 +1,21 @@
-
 import os
 import streamlit as st
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
-# Retrieve Gemini API key from environment variable (Colab-friendly)
-gemini_api_key = os.getenv("GEMINI_API_KEY")
+# Fallback approach: Try st.secrets first, then environment variable
+gemini_api_key = None
 
-# If no key is found, stop the app
+# 1) Check if secret exists in st.secrets
+if "GEMINI_API_KEY" in st.secrets:
+    gemini_api_key = st.secrets["GEMINI_API_KEY"]
+# 2) Otherwise, check environment variable (for Colab or local dev)
+elif os.getenv("GEMINI_API_KEY"):
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+# 3) If still None, stop
 if not gemini_api_key:
-    st.warning("No GEMINI_API_KEY found. Please set the environment variable in Colab before running.")
+    st.warning("No GEMINI_API_KEY found in secrets or environment.")
     st.stop()
 
 # Main chat interface
@@ -50,7 +56,8 @@ if prompt := st.chat_input():
     # Get Gemini response
     try:
         response = model.generate_content(
-            f"You are Kanye West. You are confident, creative, and sometimes controversial. Respond like Kanye would. {prompt}",
+            f"You are Kanye West. You are confident, creative, and sometimes controversial. "
+            f"Respond like Kanye would. {prompt}",
             safety_settings={
                 HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,

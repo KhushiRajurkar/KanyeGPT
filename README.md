@@ -1,2 +1,2 @@
 # KanyeGPT
-CustomGPT that talk like Kanye West 
+CustomGPT that talks like Kanye West 
